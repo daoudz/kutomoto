@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>kutomoto — Enterprise Forms Filling Automation System for Windows OS — 90Studio</title>
   <meta name="description" content="kutomoto is a professional forms filling automation system for Windows OS. Automate web and desktop forms using a visual designer or step-by-step action workflows. Copyrights reserved to 90Studio.">
-  <link rel="icon" type="image/x-icon" href="../dist/kutomoto.ico">
+  <link rel="icon" type="image/x-icon" href="kutomoto.ico">
   <style>
     :root {
       --primary: #1f6feb;
@@ -661,6 +661,7 @@
         <div class="nav-links">
           <a href="#designer" class="nav-link">Visual Designer</a>
           <a href="#simulator" class="nav-link">Web KYC Simulator</a>
+          <a href="samples/web/index.html" target="_blank" rel="noopener" class="nav-link">Live KYC Portal ↗</a>
           <a href="#releases" class="nav-link">Download Releases</a>
           <a href="#architecture" class="nav-link">Architecture &amp; Tests</a>
           <a href="https://github.com/daoudz/kutomoto" target="_blank" rel="noopener" class="btn-nav-github">
@@ -748,6 +749,26 @@
             <span class="card-meta">JSON Workflow • Schema Draft 2020-12</span>
           </div>
           <a href="downloads/telecom_sim_provisioning_workflow.json" download class="card-btn card-btn-outline">⬇ Download Telecom Flow</a>
+        </div>
+
+        <div class="release-card">
+          <div class="card-top">
+            <div class="card-icon">🌐</div>
+            <h3 class="card-title">Banking KYC Web Portal</h3>
+            <p class="card-desc">Full standalone web client target with live field validation, AML verification, and confirmation hash generation.</p>
+            <span class="card-meta">Live Web Client • 90Studio Target</span>
+          </div>
+          <a href="samples/web/index.html" target="_blank" rel="noopener" class="card-btn card-btn-outline">🌐 Open Live Web Portal ↗</a>
+        </div>
+
+        <div class="release-card">
+          <div class="card-top">
+            <div class="card-icon">📑</div>
+            <h3 class="card-title">Master Specification</h3>
+            <p class="card-desc">Complete 2,120-line enterprise architectural baseline, Draft 2020-12 schemas, and 64-bit ABI documentation.</p>
+            <span class="card-meta">Document KTM-SPEC-2026-M1</span>
+          </div>
+          <a href="SPECIFICATION.md" target="_blank" rel="noopener" class="card-btn card-btn-outline">📄 View Specification ↗</a>
         </div>
       </div>
     </section>
@@ -846,9 +867,14 @@
           <h2 class="section-title">🏦 Interactive Banking KYC Automated Flow Simulator</h2>
           <p class="section-subtitle">Simulate real-time automated data entry directly in the browser with virtual cursor movements and keystrokes.</p>
         </div>
-        <button id="btn-run-sim" class="tool-btn tool-btn-primary" style="font-size: 0.95rem; padding: 0.6rem 1.2rem;">
-          ▶ Run Simulated kutomoto Flow
-        </button>
+        <div class="tool-group">
+          <button id="btn-run-sim" class="tool-btn tool-btn-primary" style="font-size: 0.95rem; padding: 0.6rem 1.2rem;">
+            ▶ Run Simulated kutomoto Flow
+          </button>
+          <a href="samples/web/index.html" target="_blank" rel="noopener" class="tool-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem; font-size: 0.95rem; padding: 0.6rem 1.2rem;">
+            🌐 Open Standalone Target ↗
+          </a>
+        </div>
       </div>
 
       <div class="kyc-simulator-container">
