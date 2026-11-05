@@ -20,6 +20,8 @@ UI_DIR = PROJECT_ROOT / "src" / "kutomoto" / "ui"
 SAMPLES_DESKTOP_DIR = PROJECT_ROOT / "samples" / "desktop"
 SAMPLES_WEB_DIR = PROJECT_ROOT / "samples" / "web"
 WORKFLOWS_DATA_DIR = PROJECT_ROOT / "data" / "workflows"
+DOCS_DIR = PROJECT_ROOT / "docs"
+DOCS_DOWNLOADS_DIR = DOCS_DIR / "downloads"
 
 
 def generate_kutomoto_ico(target_path: Path) -> None:
@@ -665,6 +667,21 @@ def build_all() -> None:
 
     clean_and_seed_workflows_dir()
     print("[OK] Seeded data/workflows/ with official Banking KYC & Telecom SIM workflows.")
+
+    # Sync release assets into docs/ and docs/downloads/ for GitHub Pages
+    if DOCS_DIR.is_dir():
+        DOCS_DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(dist_exe, DOCS_DOWNLOADS_DIR / "kutomoto.exe")
+        shutil.copy2(dist_sample_exe, DOCS_DOWNLOADS_DIR / "sample_desktop_form.exe")
+        shutil.copy2(dist_ico_path, DOCS_DIR / "kutomoto.ico")
+        shutil.copy2(dist_ico_path, DOCS_DIR / "favicon.ico")
+        kyc_src = SAMPLES_WEB_DIR / "banking_kyc_workflow.json"
+        sim_src = SAMPLES_DESKTOP_DIR / "telecom_sim_provisioning_workflow.json"
+        if kyc_src.is_file():
+            shutil.copy2(kyc_src, DOCS_DOWNLOADS_DIR / "banking_kyc_workflow.json")
+        if sim_src.is_file():
+            shutil.copy2(sim_src, DOCS_DOWNLOADS_DIR / "telecom_sim_provisioning_workflow.json")
+        print("[OK] Synchronized release binaries & icons into docs/ & docs/downloads/.")
     print("=" * 78)
 
 

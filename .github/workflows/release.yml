@@ -1,0 +1,54 @@
+name: Publish GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Create GitHub Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          name: kutomoto ${{ github.ref_name }} — Production Release (90Studio)
+          draft: false
+          prerelease: false
+          body: |
+            # kutomoto — Professional Forms Filling Automation System for Windows OS
+            > **Copyrights reserved to 90Studio**
+
+            ### 🚀 Highlights & Features
+            - **Dual Operational Paradigms**: Visual Form Designer (VFD) + Step-by-Step Action Workflow Engine (AWE).
+            - **Native Win32 ctypes Automation**: Direct interaction via `user32.dll` `SendInput`, `GetCursorPos`, and `SetForegroundWindow` with zero external automation drivers.
+            - **Multi-Layer Safety**: Loss-of-Focus Guardian, Mouse Corner Failsafe `(0, 0)`, and Emergency `ESC` hotkey.
+            - **Microsoft Edge App Shell**: High-performance enterprise desktop UI.
+
+            ### 📦 Release Binaries & Assets
+            - `kutomoto.exe`: Standalone 64-bit launcher executable (15.8 KB).
+            - `sample_desktop_form.exe`: Standalone Telecom SIM Provisioning target desktop application (11.2 KB).
+            - `banking_kyc_workflow.json`: Pre-compiled enterprise Banking KYC action workflow.
+            - `telecom_sim_provisioning_workflow.json`: Pre-compiled enterprise Telecom SIM provisioning workflow.
+
+            ### 🌐 Interactive Showcase & Documentation
+            - **Live Demo & Designer**: [https://daoudz.github.io/kutomoto/](https://daoudz.github.io/kutomoto/)
+            - **Live Web KYC Target**: [https://daoudz.github.io/kutomoto/samples/web/index.html](https://daoudz.github.io/kutomoto/samples/web/index.html)
+            - **Architecture Blueprint**: [docs/SPECIFICATION.md](docs/SPECIFICATION.md)
+
+            ### 🛡️ Test Suite
+            - **460 / 460 Tests Passing** with 100% pass rate.
+          files: |
+            dist/kutomoto.exe
+            dist/sample_desktop_form.exe
+            dist/kutomoto.ico
+            data/workflows/banking_kyc_workflow.json
+            data/workflows/telecom_sim_provisioning_workflow.json

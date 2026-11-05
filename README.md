@@ -225,11 +225,13 @@ An interactive live release and demo showcase is published online via GitHub Pag
 The GitHub Pages release showcase includes:
 - **Online Interactive Visual Form Designer**: Draw bounding boxes on a simulated enterprise form canvas, drag, resize, set labels/values, and click **Compile** to see real-time generated Unified Action Workflow JSON!
 - **Interactive Banking KYC Form Simulator**: Run step-by-step simulated automated filling directly in your web browser with animated typing, field focus indicators, and successful AML validation.
+- **Standalone Live Banking KYC Web Target**: Full web client form target available live at [https://daoudz.github.io/kutomoto/samples/web/index.html](https://daoudz.github.io/kutomoto/samples/web/index.html).
 - **Release Download Portal**: Direct download links for standalone Windows 64-bit binaries:
   - `kutomoto.exe` (Enterprise Automation System Launcher)
   - `sample_desktop_form.exe` (Telecom SIM Provisioning Desktop Target)
   - Sample workflow JSON templates (`banking_kyc_workflow.json`, `telecom_sim_provisioning_workflow.json`)
-- **Full Architecture Specification Viewer**: Complete architectural documentation and memory layout diagrams.
+- **Full Architecture Specification Viewer**: Complete architectural documentation and memory layout diagrams ([SPECIFICATION.md](https://daoudz.github.io/kutomoto/SPECIFICATION.md)).
+- **GitHub Tagged Releases**: Formal release tags and source packages available at [https://github.com/daoudz/kutomoto/releases](https://github.com/daoudz/kutomoto/releases).
 
 ---
 
@@ -380,7 +382,7 @@ kutomoto/
 ├── src/
 │   └── kutomoto/                 # Core Python package
 │       ├── automation/           # Win32 ctypes driver, window matching, SendInput ABI
-│       ├── compiler/             # 5-pass visual-to-workflow compilation engine
+│       ├── designer/             # Visual Designer schema, 5-pass compiler & exceptions
 │       ├── engine/               # 7-state asynchronous FSM & Loss-of-Focus Guardian
 │       ├── server/               # FastAPI backend & WebSocket telemetry broadcaster
 │       └── ui/                   # HTML5 Canvas designer, Flow Builder, CSS & JS
