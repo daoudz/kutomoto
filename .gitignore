@@ -15,11 +15,12 @@ htmlcov/
 logs/
 *.log
 
-# Environments
+# Environments & Build
 .venv/
 env/
 venv/
 ENV/
+*.egg-info/
 
 # OS and Editor artifacts
 .DS_Store
