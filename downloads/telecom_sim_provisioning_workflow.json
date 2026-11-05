@@ -1,0 +1,138 @@
+{
+  "schema_version": "1.0.0",
+  "id": "telecom-sim-provisioning-e2e-001",
+  "name": "Telecom SIM Provisioning Flow",
+  "description": "Automated provisioning of 5G SIM card into Telecom Provisioning Terminal",
+  "author": "90Studio QA Engineer",
+  "copyright": "Copyrights reserved to 90Studio",
+  "source_mode": "manual_step_flow",
+  "target_application": {
+    "type": "windows_desktop",
+    "window_title_pattern": "Telecom SIM Provisioning System — 90Studio",
+    "process_name": null,
+    "match_mode": "contains"
+  },
+  "execution_settings": {
+    "countdown_seconds": 0,
+    "default_step_delay_ms": 10,
+    "typing_speed_ms": 5,
+    "stop_on_error": true,
+    "error_recovery_policy": "abort",
+    "failsafe_corner_enabled": true,
+    "abort_hotkey": "Escape"
+  },
+  "variables": [],
+  "steps": [
+    {
+      "step_id": "step-focus",
+      "sequence_index": 1,
+      "label": "Focus Telecom Terminal Window",
+      "action_type": "focus_window",
+      "enabled": true,
+      "parameters": {
+        "window_title_pattern": "Telecom SIM Provisioning System — 90Studio",
+        "match_mode": "contains"
+      }
+    },
+    {
+      "step_id": "step-click-msisdn",
+      "sequence_index": 2,
+      "label": "Click MSISDN Field",
+      "action_type": "click",
+      "enabled": true,
+      "parameters": {
+        "coordinate_mode": "normalized",
+        "norm_x": 0.625,
+        "norm_y": 0.179
+      }
+    },
+    {
+      "step_id": "step-type-msisdn",
+      "sequence_index": 3,
+      "label": "Enter MSISDN",
+      "action_type": "type_text",
+      "enabled": true,
+      "parameters": { "text": "555-019-2834" }
+    },
+    {
+      "step_id": "step-tab-1",
+      "sequence_index": 4,
+      "label": "Tab to ICCID",
+      "action_type": "key_press",
+      "enabled": true,
+      "parameters": { "key": "tab" }
+    },
+    {
+      "step_id": "step-type-iccid",
+      "sequence_index": 5,
+      "label": "Enter SIM ICCID",
+      "action_type": "type_text",
+      "enabled": true,
+      "parameters": { "text": "8901410321111851072" }
+    },
+    {
+      "step_id": "step-tab-2",
+      "sequence_index": 6,
+      "label": "Tab to Plan Type",
+      "action_type": "key_press",
+      "enabled": true,
+      "parameters": { "key": "tab" }
+    },
+    {
+      "step_id": "step-type-plan",
+      "sequence_index": 7,
+      "label": "Select Plan Type",
+      "action_type": "type_text",
+      "enabled": true,
+      "parameters": { "text": "Postpaid Unlimited" }
+    },
+    {
+      "step_id": "step-tab-3",
+      "sequence_index": 8,
+      "label": "Tab to KYC Status",
+      "action_type": "key_press",
+      "enabled": true,
+      "parameters": { "key": "tab" }
+    },
+    {
+      "step_id": "step-type-kyc",
+      "sequence_index": 9,
+      "label": "Confirm KYC Status",
+      "action_type": "type_text",
+      "enabled": true,
+      "parameters": { "text": "VERIFIED" }
+    },
+    {
+      "step_id": "step-tab-4",
+      "sequence_index": 10,
+      "label": "Tab to IMSI",
+      "action_type": "key_press",
+      "enabled": true,
+      "parameters": { "key": "tab" }
+    },
+    {
+      "step_id": "step-type-imsi",
+      "sequence_index": 11,
+      "label": "Enter IMSI",
+      "action_type": "type_text",
+      "enabled": true,
+      "parameters": { "text": "310410123456789" }
+    },
+    {
+      "step_id": "step-tab-5",
+      "sequence_index": 12,
+      "label": "Tab to Provision SIM Button",
+      "action_type": "key_press",
+      "enabled": true,
+      "parameters": { "key": "tab" }
+    },
+    {
+      "step_id": "step-submit",
+      "sequence_index": 13,
+      "label": "Submit Provisioning Request",
+      "action_type": "submit",
+      "enabled": true,
+      "parameters": { "submit_method": "enter_key" }
+    }
+  ]
+}
