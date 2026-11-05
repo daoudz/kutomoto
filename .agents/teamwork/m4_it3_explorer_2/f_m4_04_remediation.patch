@@ -1,0 +1,88 @@
+--- src/kutomoto/server/app.py
++++ src/kutomoto/server/app.py
+@@ -540,6 +540,19 @@
+     def get_audit_summary(self, workflow_id: str) -> Optional[Dict[str, Any]]:
+         """Retrieve audit log summary for a workflow ID or execution ID."""
++        # 1. Live active execution: check both workflow_id and execution_id
++        if (self._workflow_id == workflow_id or self._execution_id == workflow_id) and self.is_active():
++            return {
++                "workflow_id": self._workflow_id,
++                "execution_id": self._execution_id,
++                "workflow_name": self._workflow_name,
++                "status": self.get_state(),
++                "duration_seconds": round(time.perf_counter() - self._start_time, 2),
++                "total_steps": self._total_steps,
++                "current_step_index": self._current_step_index,
++                "timestamp_utc": datetime.now(timezone.utc).isoformat(),
++                "copyright": __copyright__,
++            }
++
++        # 2. In-memory completed / aborted audit summaries
+         if workflow_id in self._audit_summaries:
+             return self._audit_summaries[workflow_id]
+ 
+         if (self._workflow_id == workflow_id or self._execution_id == workflow_id) and self._last_audit_summary:
+             return self._last_audit_summary
+ 
+-        if self._workflow_id == workflow_id and self.is_active():
+-            return {
+-                "workflow_id": self._workflow_id,
+-                "execution_id": self._execution_id,
+-                "workflow_name": self._workflow_name,
+-                "status": self.get_state(),
+-                "duration_seconds": round(time.perf_counter() - self._start_time, 2),
+-                "total_steps": self._total_steps,
+-                "current_step_index": self._current_step_index,
+-                "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+-                "copyright": __copyright__,
+-            }
+-
++        # 3. On-disk fallback search by workflow_id or execution_id
++        safe_id = re.sub(r"[^a-zA-Z0-9_\-]", "", workflow_id)
++        if not safe_id:
++            return None
++
+         audit_dirs = [Path.home() / ".kutomoto" / "audit", BASE_DIR / "data" / "audit", BASE_DIR / "logs" / "audit"]
+         for audit_dir in audit_dirs:
+             if audit_dir.is_dir():
+-                for p in audit_dir.glob(f"audit_{workflow_id}_*.json"):
++                # Check prefix match for workflow_id (latest timestamp first)
++                candidates = sorted(audit_dir.glob(f"audit_{safe_id}_*.json"), reverse=True)
++                if not candidates:
++                    # Check midfix match for execution_id (latest timestamp first)
++                    candidates = sorted(audit_dir.glob(f"audit_*_{safe_id}_*.json"), reverse=True)
++                for p in candidates:
+                     try:
+                         data = json.loads(p.read_text(encoding="utf-8"))
+-                        summary = data.get("execution_summary", {})
+-                        return {
+-                            "workflow_id": data.get("workflow_id", workflow_id),
+-                            "execution_id": data.get("execution_id", ""),
+-                            "workflow_name": data.get("workflow_name", ""),
+-                            "status": summary.get("final_status", "UNKNOWN"),
+-                            "duration_seconds": summary.get("duration_seconds", 0.0),
+-                            "total_steps": summary.get("total_steps", 0),
+-                            "successful_steps": summary.get("successful_steps", 0),
+-                            "failed_steps": summary.get("failed_steps", 0),
+-                            "retried_steps": summary.get("retried_steps", 0),
+-                            "timestamp_utc": data.get("timestamp_utc", ""),
+-                            "copyright": data.get("copyright", __copyright__),
+-                        }
++                        if data.get("workflow_id") == safe_id or data.get("execution_id") == safe_id:
++                            summary = data.get("execution_summary", {})
++                            return {
++                                "workflow_id": data.get("workflow_id", workflow_id),
++                                "execution_id": data.get("execution_id", ""),
++                                "workflow_name": data.get("workflow_name", ""),
++                                "status": summary.get("final_status", "UNKNOWN"),
++                                "duration_seconds": summary.get("duration_seconds", 0.0),
++                                "total_steps": summary.get("total_steps", 0),
++                                "successful_steps": summary.get("successful_steps", 0),
++                                "failed_steps": summary.get("failed_steps", 0),
++                                "retried_steps": summary.get("retried_steps", 0),
++                                "timestamp_utc": data.get("timestamp_utc", ""),
++                                "copyright": data.get("copyright", __copyright__),
++                            }
+                     except Exception:
+                         pass
+         return None

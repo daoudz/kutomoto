@@ -1,0 +1,198 @@
+diff --git a/src/kutomoto/ui/index.html b/src/kutomoto/ui/index.html
+--- a/src/kutomoto/ui/index.html
++++ b/src/kutomoto/ui/index.html
+@@ -6,1 +6,1 @@
+-  <title>kutomoto — Enterprise Form Automation</title>
++  <title>kutomoto — Enterprise Form Automation — Copyrights reserved to 90Studio</title>
+diff --git a/src/kutomoto/server/app.py b/src/kutomoto/server/app.py
+--- a/src/kutomoto/server/app.py
++++ b/src/kutomoto/server/app.py
+@@ -293,1 +293,3 @@
+         self._last_audit_summary: Optional[Dict[str, Any]] = None
++        self._audit_summaries: Dict[str, Dict[str, Any]] = {}
++        self._audit_logs: Dict[str, Any] = {}
+@@ -365,10 +367,26 @@
+             summary = {
+                 "workflow_id": self._workflow_id,
+                 "execution_id": self._execution_id,
++                "workflow_name": self._workflow_name,
+                 "status": status,
+                 "duration_seconds": round(time.perf_counter() - self._start_time, 2),
+                 "total_steps": self._total_steps,
++                "timestamp_utc": datetime.now(timezone.utc).isoformat(),
++                "copyright": __copyright__,
+             }
++            if audit and hasattr(audit, "execution_summary"):
++                summary["successful_steps"] = audit.execution_summary.successful_steps
++                summary["failed_steps"] = audit.execution_summary.failed_steps
++                summary["retried_steps"] = audit.execution_summary.retried_steps
++            if audit and hasattr(audit, "step_events"):
++                summary["events_count"] = len(audit.step_events)
++
+             self._last_audit_summary = summary
++            if self._workflow_id:
++                self._audit_summaries[self._workflow_id] = summary
++            if self._execution_id:
++                self._audit_summaries[self._execution_id] = summary
++            if audit:
++                if self._workflow_id:
++                    self._audit_logs[self._workflow_id] = audit
++                if self._execution_id:
++                    self._audit_logs[self._execution_id] = audit
++
+             await self.hub.broadcast("audit_log", summary)
+             await self.hub.broadcast("execution_completed", summary)
+         except Exception as ex:
+             logger.error("Workflow execution error: %s", ex, exc_info=True)
+             err_data = {
+                 "execution_id": self._execution_id,
+                 "workflow_id": self._workflow_id,
++                "workflow_name": self._workflow_name,
+                 "error": str(ex),
+                 "status": "ERROR",
++                "duration_seconds": round(time.perf_counter() - self._start_time, 2),
++                "total_steps": self._total_steps,
++                "timestamp_utc": datetime.now(timezone.utc).isoformat(),
++                "copyright": __copyright__,
+             }
+             self._last_audit_summary = err_data
++            if self._workflow_id:
++                self._audit_summaries[self._workflow_id] = err_data
++            if self._execution_id:
++                self._audit_summaries[self._execution_id] = err_data
+             await self.hub.broadcast("step_failed", err_data)
+             await self.hub.broadcast("execution_error", err_data)
+@@ -464,2 +482,41 @@
+             "copyright": __copyright__,
+         }
+ 
++    def get_audit_summary(self, workflow_id: str) -> Optional[Dict[str, Any]]:
++        """Retrieve audit log summary for a workflow ID or execution ID."""
++        if workflow_id in self._audit_summaries:
++            return self._audit_summaries[workflow_id]
++
++        if (self._workflow_id == workflow_id or self._execution_id == workflow_id) and self._last_audit_summary:
++            return self._last_audit_summary
++
++        if self._workflow_id == workflow_id and self.is_active():
++            return {
++                "workflow_id": self._workflow_id,
++                "execution_id": self._execution_id,
++                "workflow_name": self._workflow_name,
++                "status": self.get_state(),
++                "duration_seconds": round(time.perf_counter() - self._start_time, 2),
++                "total_steps": self._total_steps,
++                "current_step_index": self._current_step_index,
++                "timestamp_utc": datetime.now(timezone.utc).isoformat(),
++                "copyright": __copyright__,
++            }
++
++        audit_dirs = [Path.home() / ".kutomoto" / "audit", BASE_DIR / "data" / "audit"]
++        for audit_dir in audit_dirs:
++            if audit_dir.is_dir():
++                for p in audit_dir.glob(f"audit_{workflow_id}_*.json"):
++                    try:
++                        data = json.loads(p.read_text(encoding="utf-8"))
++                        summary = data.get("execution_summary", {})
++                        return {
++                            "workflow_id": data.get("workflow_id", workflow_id),
++                            "execution_id": data.get("execution_id", ""),
++                            "workflow_name": data.get("workflow_name", ""),
++                            "status": summary.get("final_status", "UNKNOWN"),
++                            "duration_seconds": summary.get("duration_seconds", 0.0),
++                            "total_steps": summary.get("total_steps", 0),
++                            "successful_steps": summary.get("successful_steps", 0),
++                            "failed_steps": summary.get("failed_steps", 0),
++                            "retried_steps": summary.get("retried_steps", 0),
++                            "timestamp_utc": data.get("timestamp_utc", ""),
++                            "copyright": data.get("copyright", __copyright__),
++                        }
++                    except Exception:
++                        pass
++        return None
++
+@@ -741,2 +798,13 @@
+         return execution_manager.get_status()
+ 
++    @app_instance.get("/api/execute/audit/{workflow_id}")
++    async def get_execution_audit(
++        workflow_id: str,
++        runner_mgr: ServerExecutionManager = Depends(get_runner),
++    ):
++        """Retrieve audit log summary for a workflow execution."""
++        summary = runner_mgr.get_audit_summary(workflow_id)
++        if summary is None:
++            raise HTTPException(
++                status_code=404,
++                detail=f"Audit log summary for workflow '{workflow_id}' not found.",
++            )
++        return summary
++
+diff --git a/tests/test_api.py b/tests/test_api.py
+--- a/tests/test_api.py
++++ b/tests/test_api.py
+@@ -39,2 +39,8 @@
+         self.modifiers_released = False
++        self.cleared_fields: List[str] = []
++        self.scrolls: List[Tuple[int, int]] = []
++        self.held_keys: List[Any] = []
++        self.released_keys: List[Any] = []
++        self.mouse_buttons_down: List[str] = []
++        self.mouse_buttons_up: List[str] = []
+         self.mock_windows = [
+@@ -129,24 +135,24 @@
+     def clear_field(self, strategy: str = "select_all_backspace") -> None:
+-        pass
++        self.cleared_fields.append(strategy)
+ 
+     def send_scroll(self, delta_x: int, delta_y: int) -> None:
+-        pass
++        self.scrolls.append((delta_x, delta_y))
+ 
+     def release_all_modifiers(self) -> None:
+         self.modifiers_released = True
+ 
+     def is_key_pressed(self, vk_code_or_name: Any) -> bool:
+         return False
+ 
+     def send_key_down(self, vk_name: Any) -> None:
+-        pass
++        self.held_keys.append(vk_name)
+ 
+     def send_key_up(self, vk_name: Any) -> None:
+-        pass
++        self.released_keys.append(vk_name)
+ 
+     def send_mouse_down(self, button: str = "left") -> None:
+-        pass
++        self.mouse_buttons_down.append(button)
+ 
+     def send_mouse_up(self, button: str = "left") -> None:
+-        pass
++        self.mouse_buttons_up.append(button)
+@@ -316,2 +322,3 @@
+         assert "90Studio" in resp.text
++        assert "<title>kutomoto — Enterprise Form Automation — Copyrights reserved to 90Studio</title>" in resp.text
+@@ -459,2 +466,22 @@
+         assert status_resp.json()["state"] in ("STOPPED", "IDLE", "COMPLETED")
+ 
++    def test_execution_audit_endpoint(self, client, valid_workflow_payload):
++        non_existent_id = str(uuid.uuid4())
++        resp_404 = client.get(f"/api/execute/audit/{non_existent_id}")
++        assert resp_404.status_code == 404
++
++        start_resp = client.post("/api/execute/start", json={"workflow": valid_workflow_payload})
++        assert start_resp.status_code in (200, 202)
++        wf_id = valid_workflow_payload["id"]
++
++        resp = client.get(f"/api/execute/audit/{wf_id}")
++        assert resp.status_code == 200
++        data = resp.json()
++        assert data["workflow_id"] == wf_id
++        assert "status" in data
++        assert "duration_seconds" in data
++        assert "total_steps" in data
++        assert data["copyright"] == "Copyrights reserved to 90Studio"
++
++        client.post("/api/execute/abort")
++

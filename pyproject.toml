@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kutomoto"
+version = "1.0.0"
+description = "kutomoto — Professional Forms Filling Automation System for Windows OS (Copyrights reserved to 90Studio)"
+readme = "docs/SPECIFICATION.md"
+requires-python = ">=3.10"
+license = { text = "Copyrights reserved to 90Studio" }
+authors = [
+    { name = "90Studio Architecture Council & Engineering Taskforce" }
+]
+dependencies = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+    "pydantic>=2.0.0",
+    "websockets>=11.0",
+]
+
+[project.scripts]
+kutomoto = "kutomoto.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"kutomoto" = ["ui/**/*", "ui/*"]

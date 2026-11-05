@@ -1,0 +1,259 @@
+{
+  "schema_version": "1.0.0",
+  "id": "e2e-banking-kyc-web-flow-0001",
+  "name": "Banking KYC Customer Onboarding Automated Flow",
+  "description": "Production automated flow filling all 7 Banking KYC fields and submitting via Microsoft Edge/Chrome",
+  "author": "90Studio Automation Taskforce",
+  "created_at": "2026-11-05T08:50:00Z",
+  "updated_at": "2026-11-05T08:50:00Z",
+  "copyright": "Copyrights reserved to 90Studio",
+  "source_mode": "manual_step_flow",
+  "target_application": {
+    "type": "web_browser",
+    "window_title_pattern": ".*Banking KYC.*",
+    "process_name": "msedge.exe",
+    "browser_url_pattern": null,
+    "match_mode": "regex"
+  },
+  "execution_settings": {
+    "countdown_seconds": 2,
+    "default_step_delay_ms": 60,
+    "typing_speed_ms": 15,
+    "stop_on_error": true,
+    "error_recovery_policy": "abort",
+    "max_step_retries": 1,
+    "failsafe_corner_enabled": true,
+    "abort_hotkey": "Escape"
+  },
+  "variables": [
+    { "name": "var_full_name", "description": "Customer Legal Name", "default_value": "Eleanor Vance", "type": "string", "required": true },
+    { "name": "var_national_id", "description": "Customer SSN / National ID", "default_value": "987-65-4321", "type": "string", "required": true },
+    { "name": "var_annual_income", "description": "Annual Income USD", "default_value": "125000", "type": "number", "required": true },
+    { "name": "var_email", "description": "Customer Email", "default_value": "e.vance@enterprise-bank.com", "type": "string", "required": true }
+  ],
+  "steps": [
+    {
+      "step_id": "step-01-focus",
+      "sequence_index": 1,
+      "label": "Focus Banking KYC Browser Window",
+      "action_type": "focus_window",
+      "enabled": true,
+      "pre_delay_ms": 100,
+      "post_delay_ms": 200,
+      "parameters": {
+        "window_title_pattern": ".*Banking KYC.*",
+        "match_mode": "regex"
+      }
+    },
+    {
+      "step_id": "step-02-anchor-click",
+      "sequence_index": 2,
+      "label": "Click Field 1 (Full Name) to Anchor DOM Focus",
+      "action_type": "click",
+      "enabled": true,
+      "pre_delay_ms": 50,
+      "post_delay_ms": 100,
+      "parameters": {
+        "coordinate_mode": "normalized",
+        "norm_x": 0.32,
+        "norm_y": 0.28,
+        "button": "left",
+        "click_count": 1
+      }
+    },
+    {
+      "step_id": "step-03-type-fullname",
+      "sequence_index": 3,
+      "label": "Type Customer Full Name",
+      "action_type": "type_text",
+      "enabled": true,
+      "pre_delay_ms": 20,
+      "post_delay_ms": 50,
+      "parameters": {
+        "text": "{{var_full_name}}",
+        "keystroke_delay_ms": 15
+      }
+    },
+    {
+      "step_id": "step-04-tab-to-national-id",
+      "sequence_index": 4,
+      "label": "Tab to National ID / SSN Field",
+      "action_type": "key_press",
+      "enabled": true,
+      "pre_delay_ms": 10,
+      "post_delay_ms": 30,
+      "parameters": {
+        "key": "tab",
+        "repeat_count": 1
+      }
+    },
+    {
+      "step_id": "step-05-type-national-id",
+      "sequence_index": 5,
+      "label": "Type National ID / SSN",
+      "action_type": "type_text",
+      "enabled": true,
+      "pre_delay_ms": 10,
+      "post_delay_ms": 50,
+      "parameters": {
+        "text": "{{var_national_id}}",
+        "keystroke_delay_ms": 15
+      }
+    },
+    {
+      "step_id": "step-06-tab-to-account-type",
+      "sequence_index": 6,
+      "label": "Tab to Account Product Tier",
+      "action_type": "key_press",
+      "enabled": true,
+      "pre_delay_ms": 10,
+      "post_delay_ms": 30,
+      "parameters": {
+        "key": "tab",
+        "repeat_count": 1
+      }
+    },
+    {
+      "step_id": "step-07-select-account-type",
+      "sequence_index": 7,
+      "label": "Select Premier Checking Account Tier",
+      "action_type": "type_text",
+      "enabled": true,
+      "pre_delay_ms": 20,
+      "post_delay_ms": 50,
+      "parameters": {
+        "text": "Checking",
+        "keystroke_delay_ms": 20
+      }
+    },
+    {
+      "step_id": "step-08-tab-to-income",
+      "sequence_index": 8,
+      "label": "Tab to Annual Gross Income",
+      "action_type": "key_press",
+      "enabled": true,
+      "pre_delay_ms": 10,
+      "post_delay_ms": 30,
+      "parameters": {
+        "key": "tab",
+        "repeat_count": 1
+      }
+    },
+    {
+      "step_id": "step-09-type-income",
+      "sequence_index": 9,
+      "label": "Type Annual Gross Income",
+      "action_type": "type_text",
+      "enabled": true,
+      "pre_delay_ms": 10,
+      "post_delay_ms": 50,
+      "parameters": {
+        "text": "{{var_annual_income}}",
+        "keystroke_delay_ms": 15
+      }
+    },
+    {
+      "step_id": "step-10-tab-to-risk-rating",
+      "sequence_index": 10,
+      "label": "Tab to Regulatory Risk Rating",
+      "action_type": "key_press",
+      "enabled": true,
+      "pre_delay_ms": 10,
+      "post_delay_ms": 30,
+      "parameters": {
+        "key": "tab",
+        "repeat_count": 1
+      }
+    },
+    {
+      "step_id": "step-11-select-risk-rating",
+      "sequence_index": 11,
+      "label": "Select Low Risk Tier",
+      "action_type": "type_text",
+      "enabled": true,
+      "pre_delay_ms": 20,
+      "post_delay_ms": 50,
+      "parameters": {
+        "text": "Low",
+        "keystroke_delay_ms": 20
+      }
+    },
+    {
+      "step_id": "step-12-tab-to-email",
+      "sequence_index": 12,
+      "label": "Tab to Contact Email Field",
+      "action_type": "key_press",
+      "enabled": true,
+      "pre_delay_ms": 10,
+      "post_delay_ms": 30,
+      "parameters": {
+        "key": "tab",
+        "repeat_count": 1
+      }
+    },
+    {
+      "step_id": "step-13-type-email",
+      "sequence_index": 13,
+      "label": "Type Contact Email Address",
+      "action_type": "type_text",
+      "enabled": true,
+      "pre_delay_ms": 10,
+      "post_delay_ms": 50,
+      "parameters": {
+        "text": "{{var_email}}",
+        "keystroke_delay_ms": 15
+      }
+    },
+    {
+      "step_id": "step-14-tab-to-terms",
+      "sequence_index": 14,
+      "label": "Tab to AML Terms Attestation Checkbox",
+      "action_type": "key_press",
+      "enabled": true,
+      "pre_delay_ms": 10,
+      "post_delay_ms": 30,
+      "parameters": {
+        "key": "tab",
+        "repeat_count": 1
+      }
+    },
+    {
+      "step_id": "step-15-check-terms",
+      "sequence_index": 15,
+      "label": "Toggle Terms Checkbox via Space Key",
+      "action_type": "key_press",
+      "enabled": true,
+      "pre_delay_ms": 10,
+      "post_delay_ms": 50,
+      "parameters": {
+        "key": "space",
+        "repeat_count": 1
+      }
+    },
+    {
+      "step_id": "step-16-tab-to-submit",
+      "sequence_index": 16,
+      "label": "Tab to Submit KYC Application Button",
+      "action_type": "key_press",
+      "enabled": true,
+      "pre_delay_ms": 10,
+      "post_delay_ms": 30,
+      "parameters": {
+        "key": "tab",
+        "repeat_count": 1
+      }
+    },
+    {
+      "step_id": "step-17-submit",
+      "sequence_index": 17,
+      "label": "Execute Submission via Enter Key",
+      "action_type": "submit",
+      "enabled": true,
+      "pre_delay_ms": 50,
+      "post_delay_ms": 300,
+      "parameters": {
+        "submit_method": "enter_key"
+      }
+    }
+  ]
+}

@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>kutomoto — Enterprise Form Automation — Copyrights reserved to 90Studio</title>
+  <link rel="stylesheet" href="css/kutomoto.css">
+</head>
+<body class="enterprise-theme">
+  <!-- Top Application Header -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="logo-mark">
+        <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="6" fill="#1f6feb"/>
+          <path d="M8 8H13V15L19 8H25L17.5 16.5L25 24H19L13 17.5V24H8V8Z" fill="#ffffff"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="product-title">kutomoto</span>
+        <span class="product-subtitle">Forms Filling Automation System</span>
+      </div>
+      <span class="legal-badge">Copyrights reserved to 90Studio</span>
+    </div>
+
+    <div class="header-status">
+      <div class="connection-indicator" id="ws-connection-indicator">
+        <span class="status-dot"></span>
+        <span class="status-label" id="connection-status-label">Engine Ready</span>
+      </div>
+      <div class="active-target-badge" id="target-window-indicator" title="Active Target Application">
+        <span class="badge-icon">🎯</span>
+        <span class="target-title">Target: Not Attached</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Primary Tabbed Navigation -->
+  <nav class="app-nav">
+    <button class="nav-tab active" data-tab="tab-designer">
+      <span class="tab-icon">📐</span>
+      <span class="tab-label">Visual Designer</span>
+    </button>
+    <button class="nav-tab" data-tab="tab-builder">
+      <span class="tab-icon">⚡</span>
+      <span class="tab-label">Flow Builder</span>
+    </button>
+    <button class="nav-tab" data-tab="tab-console">
+      <span class="tab-icon">🖥️</span>
+      <span class="tab-label">Execution Console</span>
+    </button>
+    <button class="nav-tab" data-tab="tab-windows">
+      <span class="tab-icon">🪟</span>
+      <span class="tab-label">Target Windows</span>
+    </button>
+    <button class="nav-tab" data-tab="tab-settings">
+      <span class="tab-icon">⚙️</span>
+      <span class="tab-label">Settings</span>
+    </button>
+  </nav>
+
+  <!-- Main Viewport Container -->
+  <main class="app-main">
+    <!-- ===================================================================== -->
+    <!-- TAB 1: VISUAL FORM DESIGNER                                           -->
+    <!-- ===================================================================== -->
+    <section id="tab-designer" class="tab-panel active">
+      <!-- Designer Command Bar -->
+      <div class="designer-toolbar">
+        <div class="toolbar-group">
+          <label class="btn btn-secondary file-upload-btn" title="Load target form screenshot backdrop">
+            <span>📷 Load Backdrop</span>
+            <input type="file" id="designer-backdrop-input" accept="image/png,image/jpeg,image/webp">
+          </label>
+          <button id="btn-clear-backdrop" class="btn btn-secondary" title="Remove backdrop screenshot">Clear Image</button>
+          <span class="backdrop-dim-label" id="backdrop-dimensions">1024 × 768 px</span>
+        </div>
+
+        <div class="toolbar-group">
+          <label class="toggle-checkbox" title="Snap to grid">
+            <input type="checkbox" id="designer-snap-toggle" checked>
+            <span>Snap Grid</span>
+          </label>
+          <select id="designer-grid-size" class="form-select select-compact">
+            <option value="8">8 px</option>
+            <option value="16" selected>16 px</option>
+            <option value="24">24 px</option>
+          </select>
+          <button id="btn-auto-sequence" class="btn btn-secondary" title="Sort boxes by 2D spatial reading order">
+            <span>🔢 Auto-Sequence</span>
+          </button>
+        </div>
+
+        <div class="toolbar-group">
+          <button id="btn-import-layout" class="btn btn-secondary" title="Import VisualFormLayout JSON">
+            <span>📂 Import</span>
+            <input type="file" id="designer-import-input" accept=".json" style="display:none">
+          </button>
+          <button id="btn-export-layout" class="btn btn-secondary" title="Export VisualFormLayout JSON">
+            <span>💾 Export</span>
+          </button>
+          <button id="btn-clear-canvas" class="btn btn-danger" title="Clear all drawn boxes">
+            <span>🗑️ Clear All</span>
+          </button>
+        </div>
+
+        <div class="toolbar-group toolbar-group-right">
+          <button id="btn-compile-workflow" class="btn btn-primary btn-glow" title="Compile visual layout to executable action workflow">
+            <span>⚡ Compile to Workflow</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Designer Workspace: Canvas Viewport + Property Inspector -->
+      <div class="designer-workspace">
+        <!-- Canvas Viewport -->
+        <div class="canvas-viewport" id="canvas-viewport">
+          <div class="canvas-wrapper" id="canvas-wrapper">
+            <canvas id="designer-canvas" width="1024" height="768"></canvas>
+          </div>
+        </div>
+
+        <!-- Property Inspector Sidebar -->
+        <aside class="property-inspector" id="property-inspector">
+          <div class="inspector-header">
+            <h3>Field Inspector</h3>
+            <span class="box-count-badge" id="inspector-box-count">0 boxes</span>
+          </div>
+
+          <!-- Empty State (No Box Selected) -->
+          <div class="inspector-empty-state" id="inspector-empty">
+            <div class="empty-icon">👆</div>
+            <p><strong>No field selected</strong></p>
+            <p class="muted">Click a box to edit its parameters, or drag on the canvas to draw a new form input box.</p>
+          </div>
+
+          <!-- Selected Box Property Editor Form -->
+          <div class="inspector-form" id="inspector-form" style="display:none;">
+            <div class="form-section-title">
+              <span id="selected-box-title">Box Parameters</span>
+              <span class="seq-pill" id="selected-seq-pill">#1</span>
+            </div>
+
+            <div class="form-group">
+              <label for="prop-box-label">Field Label (Display)</label>
+              <input type="text" id="prop-box-label" class="form-input" placeholder="e.g. Borrower Legal Name">
+            </div>
+
+            <div class="form-group">
+              <label for="prop-box-name">Field Identifier (Token)</label>
+              <input type="text" id="prop-box-name" class="form-input code-font" placeholder="e.g. borrower_name">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="prop-box-seq">Sequence Index</label>
+                <input type="number" id="prop-box-seq" class="form-input" min="1" step="1">
+              </div>
+              <div class="form-group flex-1">
+                <label for="prop-box-action">Action Type</label>
+                <select id="prop-box-action" class="form-select">
+                  <option value="type_text">Type Text</option>
+                  <option value="click">Mouse Click</option>
+                  <option value="checkbox">Toggle Checkbox</option>
+                  <option value="select">Dropdown Select</option>
+                  <option value="key_press">Key Press</option>
+                  <option value="submit">Submit Button</option>
+                  <option value="delay">Settling Delay</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" id="group-prop-value">
+              <label for="prop-box-value">Value / Text Payload</label>
+              <textarea id="prop-box-value" class="form-textarea" rows="2" placeholder="Text to enter, or key name (e.g. tab, enter)"></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="prop-box-nav">Post Navigation</label>
+                <select id="prop-box-nav" class="form-select">
+                  <option value="tab">Press Tab</option>
+                  <option value="enter">Press Enter</option>
+                  <option value="click_next">Click Next</option>
+                  <option value="none">None</option>
+                </select>
+              </div>
+              <div class="form-group flex-1">
+                <label for="prop-box-post-delay">Post Delay (ms)</label>
+                <input type="number" id="prop-box-post-delay" class="form-input" min="0" step="10" value="120">
+              </div>
+            </div>
+
+            <div class="form-toggles">
+              <label class="toggle-checkbox">
+                <input type="checkbox" id="prop-box-clear" checked>
+                <span>Clear Before Typing (Ctrl+A &rarr; Del)</span>
+              </label>
+              <label class="toggle-checkbox">
+                <input type="checkbox" id="prop-box-force-click">
+                <span>Force Click (Even in Tab chain)</span>
+              </label>
+              <label class="toggle-checkbox">
+                <input type="checkbox" id="prop-box-secret">
+                <span>Mask as Secret (Password/PIN)</span>
+              </label>
+            </div>
+
+            <div class="geometry-card">
+              <div class="geo-title">Geometry &amp; Normalized Coords</div>
+              <div class="geo-grid">
+                <div><span>X:</span> <strong id="geo-x">0</strong></div>
+                <div><span>Y:</span> <strong id="geo-y">0</strong></div>
+                <div><span>W:</span> <strong id="geo-w">0</strong></div>
+                <div><span>H:</span> <strong id="geo-h">0</strong></div>
+                <div><span>Norm X:</span> <strong id="geo-norm-x">0.0000</strong></div>
+                <div><span>Norm Y:</span> <strong id="geo-norm-y">0.0000</strong></div>
+                <div><span>Norm W:</span> <strong id="geo-norm-w">0.0000</strong></div>
+                <div><span>Norm H:</span> <strong id="geo-norm-h">0.0000</strong></div>
+              </div>
+            </div>
+
+            <div class="inspector-actions">
+              <button id="btn-duplicate-box" class="btn btn-secondary flex-1">Duplicate</button>
+              <button id="btn-delete-box" class="btn btn-danger flex-1">Delete Field</button>
+            </div>
+          </div>
+
+          <!-- Target & Compiler Options -->
+          <details class="layout-meta-accordion">
+            <summary>Target &amp; Compiler Options</summary>
+            <div class="accordion-body">
+              <div class="form-group">
+                <label for="layout-name">Layout Name</label>
+                <input type="text" id="layout-name" class="form-input" value="Enterprise Form Layout">
+              </div>
+              <div class="form-group">
+                <label for="target-title-pattern">Target Window Pattern (Regex)</label>
+                <input type="text" id="target-title-pattern" class="form-input code-font" value=".*">
+              </div>
+              <div class="form-group">
+                <label for="target-app-type">Target Platform</label>
+                <select id="target-app-type" class="form-select">
+                  <option value="any">Any (Browser or Desktop)</option>
+                  <option value="web_browser">Web Browser</option>
+                  <option value="windows_desktop">Windows Desktop</option>
+                </select>
+              </div>
+              <label class="toggle-checkbox">
+                <input type="checkbox" id="opt-click-to-tab">
+                <span>Peephole: Click-to-Tab Conversion</span>
+              </label>
+            </div>
+          </details>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: STEP-BY-STEP FLOW BUILDER                                      -->
+    <!-- ===================================================================== -->
+    <section id="tab-builder" class="tab-panel">
+      <div class="flow-builder-toolbar">
+        <div class="toolbar-group">
+          <button id="btn-add-step" class="btn btn-primary">
+            <span>➕ Add Action Step</span>
+          </button>
+          <div class="target-picker-group">
+            <label for="workflow-preset-select" class="picker-label">Preset:</label>
+            <select id="workflow-preset-select" class="form-select select-compact" title="Select enterprise sample or saved workflow">
+              <option value="">-- Load Sample / Saved Flow --</option>
+            </select>
+            <button id="btn-save-workflow" class="btn btn-secondary" title="Save current workflow">
+              <span>💾 Save</span>
+            </button>
+          </div>
+          <div class="target-picker-group">
+            <label for="target-window-select" class="picker-label">Target App:</label>
+            <select id="target-window-select" class="form-select select-target-picker">
+              <option value="">-- Select Active Window or Tab --</option>
+            </select>
+            <button id="btn-refresh-windows" class="btn btn-secondary" title="Refresh open windows list">
+              <span>🔄</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="toolbar-group toolbar-group-right">
+          <button id="btn-launch-sample-web" class="btn btn-secondary" title="Open Sample Banking KYC Web Form">
+            <span>🌐 Sample Web Form</span>
+          </button>
+          <button id="btn-launch-sample-desktop" class="btn btn-secondary" title="Open Sample Telecom SIM Desktop Form">
+            <span>🖥️ Sample Desktop Form</span>
+          </button>
+          <span class="workflow-metrics" id="workflow-summary-metrics">1 Steps | Est. Duration: 0.3s</span>
+          <button id="btn-run-workflow" class="btn btn-success btn-glow" title="Execute workflow against target application">
+            <span>▶ Run Workflow</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="flow-builder-workspace">
+        <div class="step-list-header">
+          <span>Workflow Execution Sequence (Drag or use arrows to reorder)</span>
+        </div>
+        <div class="step-list-container" id="step-list-container">
+          <!-- Populated dynamically by runner.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 3: EXECUTION CONSOLE                                              -->
+    <!-- ===================================================================== -->
+    <section id="tab-console" class="tab-panel">
+      <div class="console-toolbar">
+        <div class="toolbar-group">
+          <div class="state-indicator-badge">
+            <span class="state-label">Status:</span>
+            <span id="execution-state-badge" class="state-badge state-idle">IDLE</span>
+          </div>
+        </div>
+
+        <div class="toolbar-group toolbar-group-right">
+          <button id="btn-pause-execution" class="btn btn-secondary" disabled>
+            <span>⏸ Pause</span>
+          </button>
+          <button id="btn-resume-execution" class="btn btn-secondary" disabled>
+            <span>▶ Resume</span>
+          </button>
+          <button id="btn-abort-execution" class="btn btn-danger" disabled>
+            <span>🛑 Emergency Abort</span>
+          </button>
+          <button id="btn-clear-console" class="btn btn-secondary" title="Clear console logs">
+            <span>🧹 Clear Logs</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Execution Progress Header -->
+      <div class="console-progress-section">
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="execution-progress-bar" style="width: 0%;"></div>
+        </div>
+        <div class="progress-details">
+          <span id="execution-progress-text">Ready. Dispatched steps will stream here in real-time.</span>
+          <label class="toggle-checkbox">
+            <input type="checkbox" id="chk-autoscroll" checked>
+            <span>Auto-Scroll</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Monospace Real-Time Audit Console -->
+      <div class="console-output-container" id="execution-log-output">
+        <div class="log-watermark">kutomoto Automation Studio — Copyrights reserved to 90Studio</div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 4: TARGET WINDOWS EXPLORER                                        -->
+    <!-- ===================================================================== -->
+    <section id="tab-windows" class="tab-panel">
+      <div class="windows-toolbar">
+        <div class="toolbar-group">
+          <input type="text" id="windows-search-input" class="form-input" placeholder="Filter open windows by title or executable...">
+          <button id="btn-refresh-windows-tab" class="btn btn-secondary">
+            <span>🔄 Refresh Windows</span>
+          </button>
+        </div>
+        <div class="toolbar-group toolbar-group-right">
+          <span class="windows-count" id="windows-count-label">0 windows active</span>
+        </div>
+      </div>
+
+      <div class="windows-table-wrapper">
+        <table class="enterprise-table">
+          <thead>
+            <tr>
+              <th>HWND</th>
+              <th>Window Title</th>
+              <th>Process</th>
+              <th>PID</th>
+              <th>Dimensions</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="windows-table-body">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 5: SYSTEM SETTINGS                                                -->
+    <!-- ===================================================================== -->
+    <section id="tab-settings" class="tab-panel">
+      <div class="settings-viewport">
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <h3>Execution &amp; Safety Guardrails</h3>
+            <p class="muted">Configured safety thresholds and timing baselines.</p>
+          </div>
+          <div class="settings-grid">
+            <div class="form-group">
+              <label>Countdown Buffer (Seconds)</label>
+              <input type="number" id="setting-countdown-sec" class="form-input" value="3" min="0" max="10">
+            </div>
+            <div class="form-group">
+              <label>Default Step Settling Delay (ms)</label>
+              <input type="number" id="setting-step-delay" class="form-input" value="120" min="10" max="5000">
+            </div>
+            <div class="form-group">
+              <label>Typing Speed (Keystroke Delay ms)</label>
+              <input type="number" id="setting-typing-speed" class="form-input" value="20" min="1" max="500">
+            </div>
+            <div class="form-group">
+              <label>Emergency Safety Abort Hotkey</label>
+              <input type="text" class="form-input" value="Escape" disabled>
+            </div>
+            <div class="form-group">
+              <label>Screen Corner Failsafe (Emergency Stop)</label>
+              <input type="text" class="form-input" value="Top-Left Corner (0, 0)" disabled>
+            </div>
+            <div class="form-group">
+              <label>Attribution &amp; Copyright Notice</label>
+              <input type="text" class="form-input" value="Copyrights reserved to 90Studio" disabled>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL: 3-SECOND COUNTDOWN HUD                                         -->
+  <!-- ===================================================================== -->
+  <div class="modal-overlay countdown-hud-overlay" id="countdown-hud-modal">
+    <div class="countdown-hud-card">
+      <div class="hud-header">
+        <span class="hud-badge">Automation Imminent</span>
+        <h2>Switching to Target Window</h2>
+        <div class="hud-target-name" id="hud-target-name">Target Application</div>
+      </div>
+
+      <div class="hud-counter-wrapper">
+        <svg class="hud-progress-svg" width="160" height="160" viewBox="0 0 100 100">
+          <circle class="hud-progress-track" cx="50" cy="50" r="45"></circle>
+          <circle class="hud-progress-fill" id="hud-progress-circle" cx="50" cy="50" r="45"></circle>
+        </svg>
+        <div class="hud-counter-number" id="hud-countdown-number">3</div>
+      </div>
+
+      <div class="hud-instructions">
+        <p>Switching focus to target window... Keystrokes will inject upon zero.</p>
+        <p class="abort-note">Press <kbd>Escape</kbd> or click Cancel to immediately abort.</p>
+      </div>
+
+      <div class="hud-actions">
+        <button id="btn-cancel-hud" class="btn btn-danger btn-lg">Cancel Execution (Esc)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL: STEP PARAMETER EDITOR                                          -->
+  <!-- ===================================================================== -->
+  <div class="modal-overlay" id="step-editor-modal">
+    <div class="modal-card modal-card-editor">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-badge-primary">Step Configuration</span>
+          <h3 id="step-modal-title">Edit Action Step</h3>
+        </div>
+        <button class="modal-close-btn" id="btn-cancel-step-modal-top">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="edit-step-label">Step Description / Label</label>
+          <input type="text" id="edit-step-label" class="form-input" placeholder="e.g. Enter Customer First Name">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="edit-step-action-type">Action Type</label>
+            <select id="edit-step-action-type" class="form-select">
+              <option value="focus_window">Focus Window</option>
+              <option value="click">Mouse Click</option>
+              <option value="type_text">Type Text</option>
+              <option value="key_press">Key Press</option>
+              <option value="hotkey">Hotkey Combination</option>
+              <option value="clear_field">Clear Field</option>
+              <option value="delay">Settling Delay</option>
+              <option value="submit">Submit Form</option>
+              <option value="scroll">Scroll Wheel</option>
+              <option value="prompt_user_input">Prompt User Input</option>
+            </select>
+          </div>
+          <div class="form-group flex-1">
+            <label for="edit-step-pre-delay">Pre-Delay (ms)</label>
+            <input type="number" id="edit-step-pre-delay" class="form-input" min="0" value="0">
+          </div>
+          <div class="form-group flex-1">
+            <label for="edit-step-post-delay">Post-Delay (ms)</label>
+            <input type="number" id="edit-step-post-delay" class="form-input" min="0" value="120">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="toggle-checkbox">
+            <input type="checkbox" id="edit-step-enabled" checked>
+            <span>Step Enabled (Include in execution)</span>
+          </label>
+        </div>
+
+        <div class="edit-params-card">
+          <div class="params-header">Action Parameters</div>
+          <div id="edit-params-fields" class="params-fields-container">
+            <!-- Rendered dynamically by runner.js -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel-step-modal" class="btn btn-secondary">Cancel</button>
+        <button id="btn-save-step-modal" class="btn btn-primary">Save Step</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL: WORKFLOW COMPILATION SUCCESS                                   -->
+  <!-- ===================================================================== -->
+  <div class="modal-overlay" id="compile-modal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-badge-success">Compilation Successful</span>
+          <h3 id="compile-modal-title">Compiled Workflow Generated</h3>
+        </div>
+        <button class="modal-close-btn" id="btn-close-compile-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="compile-stats" id="compile-stats-bar">
+          <div class="stat-pill"><span id="stat-step-count">0</span> Steps</div>
+          <div class="stat-pill"><span id="stat-target-name">Target Pattern</span></div>
+          <div class="stat-pill"><span id="stat-source-mode">visual_designer_generated</span></div>
+        </div>
+        <pre class="code-preview" id="compile-json-preview"><code></code></pre>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-download-workflow-json" class="btn btn-secondary">💾 Save Workflow JSON</button>
+        <button id="btn-load-in-builder" class="btn btn-secondary">⚡ Open in Flow Builder</button>
+        <button id="btn-run-compiled-workflow" class="btn btn-primary btn-glow">▶ Run in Execution Console</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Toast Notification Hub -->
+  <div class="toast-hub" id="toast-hub"></div>
+
+  <!-- Application Footer -->
+  <footer class="app-footer">
+    <div class="footer-left">
+      <span>kutomoto Automation Studio v1.0.0</span>
+    </div>
+    <div class="footer-center">
+      <strong>Copyrights reserved to 90Studio</strong>
+    </div>
+    <div class="footer-right">
+      <span id="footer-engine-state">Engine Status: Idle</span>
+    </div>
+  </footer>
+
+  <!-- JavaScript Modules (Loaded in dependency order) -->
+  <script src="js/designer.js"></script>
+  <script src="js/runner.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
